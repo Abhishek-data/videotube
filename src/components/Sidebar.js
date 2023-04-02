@@ -1,10 +1,11 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   return (
     <div className="p-5 shadow-lg w-48">
       <ul>
-        <li className="p-2 hover:bg-gray-200">Home</li>
+        <li className="p-2 hover:bg-gray-200"><Link to="/">Home</Link></li>
         <li className="p-2 hover:bg-gray-200">Subscriptions</li>
         <li className="p-2 hover:bg-gray-200">Originals</li>
         <li className="p-2 hover:bg-gray-200">Youtube Music</li>

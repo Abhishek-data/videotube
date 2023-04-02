@@ -1,21 +1,46 @@
-import React from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { toggleMenu } from "../utils/appSlice";
+import { YOUTUBE_SEARCH_API } from "../utils/constant";
+import { cacheResults } from "../utils/searchSlice";
 
 const Header = () => {
-  const dispatch = useDispatch()  
-  const toggleHandler = ()=>{
-    dispatch(toggleMenu())
-  }
+  const [searchText, setSearchText] = useState("");
+  const [searchSuggest, setSearchSuggest] = useState([]);
+  const [showSuggestions, setShowSuggetions] = useState(false);
+  const searchCache = useSelector((state) => state.search.cachedSearch);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchCache[searchText]) {
+        setSearchSuggest(searchCache[searchText]);
+      } else {
+        getSearchSuggestions();
+      }
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [searchText, searchCache]);
+
+  const getSearchSuggestions = async () => {
+    const response = await fetch(YOUTUBE_SEARCH_API + searchText);
+    const data = await response.json();
+    setSearchSuggest(data[1]);
+    dispatch(cacheResults({[searchText]: data[1]}))
+    console.log(data[1]);
+  };
+
+  const dispatch = useDispatch();
+  const toggleHandler = () => {
+    dispatch(toggleMenu());
+  };
   return (
     <div className="grid grid-flow-col p-5 m-2 shadow-lg">
       <div className="flex col-span-1">
         <button onClick={toggleHandler}>
-        <img
-          className="h-8 cursor-pointer"
-          src="https://cdn-icons-png.flaticon.com/512/3917/3917215.png"
-          alt="menu"
-        />
+          <img
+            className="h-8 cursor-pointer"
+            src="https://cdn-icons-png.flaticon.com/512/3917/3917215.png"
+            alt="menu"
+          />
         </button>
         <img
           className="h-8 mx-3"
@@ -24,8 +49,33 @@ const Header = () => {
         />
       </div>
       <div className="col-span-10 px-10">
-        <input type="text" className="w-1/2 border border-gray-400 p-2 rounded-l-full"/>
-        <button className="border border-gray-400 p-2 rounded-r-full bg-gray-100">Search</button>
+        <div>
+          <input
+            type="text"
+            className="px-5 w-1/2 border border-gray-400 p-2 rounded-l-full"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            onFocus={() => setShowSuggetions(true)}
+            onBlur={() => setShowSuggetions(false)}
+          />
+          <button className="border border-gray-400 p-2 rounded-r-full bg-gray-100">
+            Search
+          </button>
+        </div>
+        {showSuggestions && (
+          <div className="absolute bg-white py-2 px-5 w-[26rem] shadow-lg rounded-lg border border-gray-200">
+            <ul>
+              {searchSuggest.map((text, index) => (
+                <li
+                  className="px-3 py-2 shadow-sm hover:bg-gray-100"
+                  key={index}
+                >
+                  {text}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
       <div className="col-span-1">
         <img
