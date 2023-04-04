@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleMenu } from "../utils/appSlice";
 import { YOUTUBE_SEARCH_API } from "../utils/constant";
@@ -9,6 +9,15 @@ const Header = () => {
   const [searchSuggest, setSearchSuggest] = useState([]);
   const [showSuggestions, setShowSuggetions] = useState(false);
   const searchCache = useSelector((state) => state.search.cachedSearch);
+  const dispatch = useDispatch();
+
+  const getSearchSuggestions = useCallback( async () => {
+    const response = await fetch(YOUTUBE_SEARCH_API + searchText);
+    const data = await response.json();
+    setSearchSuggest(data[1]);
+    dispatch(cacheResults({[searchText]: data[1]}))
+    
+  },[dispatch, searchText]);
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchCache[searchText]) {
@@ -18,20 +27,16 @@ const Header = () => {
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [searchText, searchCache]);
+  }, [searchText, searchCache, getSearchSuggestions]);
 
-  const getSearchSuggestions = async () => {
-    const response = await fetch(YOUTUBE_SEARCH_API + searchText);
-    const data = await response.json();
-    setSearchSuggest(data[1]);
-    dispatch(cacheResults({[searchText]: data[1]}))
-    console.log(data[1]);
-  };
 
-  const dispatch = useDispatch();
+
+  
   const toggleHandler = () => {
     dispatch(toggleMenu());
   };
+
+  
   return (
     <div className="grid grid-flow-col p-5 m-2 shadow-lg">
       <div className="flex col-span-1">
@@ -70,7 +75,7 @@ const Header = () => {
                   className="px-3 py-2 shadow-sm hover:bg-gray-100"
                   key={index}
                 >
-                  {text}
+                 <button onClick={()=>console.log("hi")}>{text}</button> 
                 </li>
               ))}
             </ul>

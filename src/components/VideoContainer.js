@@ -14,7 +14,7 @@ const VideoContainer = () => {
     const response = await fetch(YOUTUBE_VIDEO_API);
     const data = await response.json();
     setVideos(data.items);
-   
+    
   };
 
   return (videos.length===0)?<Shimmer/>:(
