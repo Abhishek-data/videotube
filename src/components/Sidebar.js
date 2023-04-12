@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   return (
-    <div className="p-5 shadow-lg w-48">
+    <div className="p-5 shadow-lg max-w-xs">
       <ul>
         <li className="p-2 hover:bg-gray-200"><Link to="/">Home</Link></li>
         <li className="p-2 hover:bg-gray-200">Subscriptions</li>
